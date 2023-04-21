@@ -1,0 +1,27 @@
+services:
+  grpc-server:
+    build:
+      context: .
+      dockerfile: ./build/grpc-server/Dockerfile
+    ports:
+      - "3000:3000"
+    command: grpc
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15.2-bullseye
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB:               "dbname"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_PASSWORD:         "password"
+      POSTGRES_USER:             "user"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
